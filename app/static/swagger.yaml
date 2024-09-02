@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Textract & Mistral API
+  description: An API to process PDFs and extract information using Textract and Mistral.
+  version: 1.0.0
+servers:
+  - url: https://chatpdf.crystalchain.io
+    description: Production server
+paths:
+  /analyze-pdf:
+    post:
+      summary: Analyze a PDF document and answer questions.
+      description: Upload a PDF file, and the system will extract text and answer questions based on the document's content.
+      tags:
+        - PDF Analysis
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The PDF file to be processed.
+                questions:
+                  type: string
+                  description: |
+                    A JSON string with the questions to be answered. Example:
+                    ```
+                    [{"field_name": "name", "question": "What is the name?"}]
+                    ```
+      responses:
+        '200':
+          description: A JSON object with answers to the provided questions.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid input data or file not found.
+        '500':
+          description: Server error during processing.
+
+components:
+  schemas:
+    Questions:
+      type: array
+      items:
+        type: object
+        properties:
+          field_name:
+            type: string
+            description: The name of the field.
+          question:
+            type: string
+            description: The question related to the field.

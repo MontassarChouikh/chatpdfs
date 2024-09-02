@@ -1,0 +1,7 @@
+Flask
+boto3
+gunicorn
+Werkzeug
+pdf2image
+flask-swagger-ui
+python-dotenv
