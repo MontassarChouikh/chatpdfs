@@ -163,7 +163,7 @@ def query_claude_via_bedrock(extracted_text, questions, image_path=None, max_ret
       {question_instructions}
     }}
 
-    Provide the answer in the following JSON structure:
+    Provide the answer in JSON structure, this is an example of the JSON structure:
     {{
         "CertificateName": "string",
         "CertificateType": "string",
