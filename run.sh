@@ -4,7 +4,7 @@
 file_path="chanel2.pdf"
 
 # URL of your Flask API running on the server
-url="http://127.0.0.1:5001/process-pdf"
+url="https://chatpdf.crystalchain.io/process-pdf"
 
 echo "Sending request to $url"
 

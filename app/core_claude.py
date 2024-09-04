@@ -161,7 +161,7 @@ def query_claude_via_bedrock(extracted_text, questions, image_path=None, max_ret
     - Shipments (shipment number, date, gross shipping weight, invoice references, etc.)
 
     Use the format below to answer:
-    - All dates must be in the format DD-MM-YYYY.
+    - All dates must be in the format YYYY-MM-DD.
     - If any information is missing or unavailable, use NULL.
     - Ensure that all data is provided in the requested JSON format.
 
