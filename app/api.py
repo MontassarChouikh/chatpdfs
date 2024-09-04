@@ -29,8 +29,8 @@ def clean_and_format_json(response_text):
         logger.error(f"Failed to decode JSON: {e}")
         return None
 
-@app.route('/analyze-pdf', methods=['POST'])
-def analyze_pdf():
+@app.route('/process-pdf', methods=['POST'])  # Updated route name
+def process_pdf():  # Updated function name
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No file part", "error_code": 201}), 400
@@ -58,7 +58,7 @@ def analyze_pdf():
             question['question'] = f"Who is the {question['question']}"
 
         # Pass the raw bytes to the `extract_text_from_pdf` function
-        extracted_text = extract_text_from_pdf('ai-bucket', file_bytes)
+        extracted_text, average_confidence_score = extract_text_from_pdf('ai-bucket', file_bytes)
         if not extracted_text:
             return jsonify({"error": "No text extracted from the document", "error_code": 103}), 500
 
@@ -71,6 +71,11 @@ def analyze_pdf():
             cleaned_response = raw_response
 
         if cleaned_response:
+            # Add confidence score after each answer field
+            if isinstance(cleaned_response, dict):
+                cleaned_response['average_confidence_score'] = average_confidence_score
+
+            # Include the average confidence score in the response
             return jsonify(cleaned_response), 200
         else:
             return jsonify({"error": "Failed to process model response", "raw_response": raw_response}), 500
