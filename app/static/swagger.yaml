@@ -1,16 +1,18 @@
 openapi: 3.0.0
 info:
-  title: Textract & Mistral API
-  description: An API to process PDFs and extract information using Textract and Mistral.
+  title: OCR & LLM API
+  description:  An API that processes PDFs, extracts text using multiple OCR providers (Google, Textract),
+    and answers questions using LLMs (Claude, GPT-4, Mistral).
   version: 1.0.0
 servers:
   - url: https://chatpdf.crystalchain.io
     description: Production server
 paths:
-  /analyze-pdf:
+  /process-pdf:
     post:
-      summary: Analyze a PDF document and answer questions.
-      description: Upload a PDF file, and the system will extract text and answer questions based on the document's content.
+      summary: Analyze a PDF and answer questions
+      description: >
+        Upload a PDF file to extract text and answer questions using the selected OCR and LLM providers.
       tags:
         - PDF Analysis
       requestBody:
@@ -23,36 +25,101 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: The PDF file to be processed.
+                  description: The PDF file to process.
+                  example: sample.pdf
                 questions:
                   type: string
-                  description: |
-                    A JSON string with the questions to be answered. Example:
+                  description: >
+                    A JSON array of questions to be answered based on the document.
+                    Example:
+                    ```json
+                    [
+                      {"field_name": "name", "question": "What is the name?"},
+                      {"field_name": "date", "question": "What is the issue date?"}
+                    ]
                     ```
-                    [{"field_name": "name", "question": "What is the name?"}]
-                    ```
+                ocr_type:
+                  type: string
+                  enum: [google, textract]
+                  description: The OCR provider to use.
+                  example: google
+                llm_type:
+                  type: string
+                  enum: [claude, gpt4, mistral]
+                  description: The LLM provider to use for answering questions.
+                  example: claude
       responses:
         '200':
-          description: A JSON object with answers to the provided questions.
+          description: Successfully processed the PDF.
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  extracted_text:
+                    type: string
+                    description: Text extracted from the PDF.
+                  confidence_score:
+                    type: number
+                    format: float
+                    description: Average confidence score of the OCR process.
+                  llm_answers:
+                    type: object
+                    description: Answers provided by the selected LLM.
         '400':
-          description: Invalid input data or file not found.
+          description: Bad request, such as missing file or invalid JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_code:
+                    type: integer
         '500':
-          description: Server error during processing.
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_code:
+                    type: integer
 
 components:
   schemas:
+    Question:
+      type: object
+      properties:
+        field_name:
+          type: string
+          description: The name of the field being queried.
+        question:
+          type: string
+          description: The question to ask about the field.
     Questions:
       type: array
       items:
-        type: object
-        properties:
-          field_name:
-            type: string
-            description: The name of the field.
-          question:
-            type: string
-            description: The question related to the field.
+        $ref: '#/components/schemas/Question'
+    LLMAnswer:
+      type: object
+      properties:
+        field_name:
+          type: string
+        answer:
+          type: string
+    LLMAnswers:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LLMAnswer'
+
+tags:
+  - name: PDF Analysis
+    description: Endpoints for processing PDFs.
+  - name: OCR Providers
+    description: Supported OCR services like Google OCR and Textract.
+  - name: LLM Providers
+    description: Supported LLMs like Claude, GPT-4, and Mistral.

@@ -11,8 +11,14 @@ ENV/
 env.bak/
 venv.bak/
 
+output_images/
+#test files
+run.sh
 # Environment variables file
 .env
+
+# Test files
+.sh
 
 # Package directories
 pip-log.txt
@@ -21,6 +27,10 @@ pip-delete-this-directory.txt
 .eggs/
 dist/
 build/
+
+.pytest_cache/
+.coverage
+*.pyc
 
 # Caches
 *.cache

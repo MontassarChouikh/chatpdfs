@@ -3,7 +3,7 @@ version: '3'
 services:
   flask-app:
     build: .
-    container_name: flask-app
+    container_name: flask1
     ports:
       - "5001:5001"
     volumes:
@@ -12,3 +12,7 @@ services:
       - .env  # Load environment variables from .env file
     environment:
       - FLASK_APP=app.api  # Reference the api.py file where the app object is defined
+
+
+
+      
