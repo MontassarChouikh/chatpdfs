@@ -8,8 +8,7 @@ services:
       - "5001:5001"
     volumes:
       - .:/app
-    env_file:
-      - .env  # Load environment variables from .env file
+
     environment:
       - FLASK_APP=app.api  # Reference the api.py file where the app object is defined
 
