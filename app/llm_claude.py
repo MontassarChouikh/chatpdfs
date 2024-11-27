@@ -66,7 +66,7 @@ class ClaudeBedrockAPI:
         {question_instructions}
         }}
 
-        Complete the JSON below:
+        Provide the answer in JSON structure like in this example:
         ```json
         {json_prefill}
         """
