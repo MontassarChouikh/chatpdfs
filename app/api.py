@@ -87,10 +87,10 @@ def process_pdf():
         else:
             return jsonify({"error": f"Unsupported LLM_TYPE: {llm_type}", "error_code": 107}), 400
 
-        # Include the confidence score in the response payload
         
         llm_response.update({"ocr_confidence_score": average_confidence_score})
         response_payload = llm_response
+
 
         return jsonify(response_payload), 200
 

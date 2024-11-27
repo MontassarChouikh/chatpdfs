@@ -30,7 +30,7 @@ class ClaudeBedrockAPI:
             logger.error(f"Invalid JSON response: {e}")
             return None
 
-    def query_claude(self, extracted_text, questions, prefilled_response=None, max_tokens=8000, max_retries=3, retry_delay=2):
+    def query_claude(self, extracted_text, questions, prefilled_response=None, max_retries=3, retry_delay=2):
         question_instructions = ", ".join([f'"{q["field_name"]}": "{q["question"]}"' for q in questions])
 
         system_prompt = "You are given the extracted text from a document. Please answer the following questions based on the provided text."
@@ -78,10 +78,10 @@ class ClaudeBedrockAPI:
             messages.append(assistant_message)
 
         body = json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
+            "anthropic_version": 'bedrock-2023-05-31',
             "system": system_prompt,
             "messages": messages,
-            "max_tokens": max_tokens
+            "max_tokens": 80000
         })
 
         attempt = 0

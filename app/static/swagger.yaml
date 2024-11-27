@@ -5,7 +5,7 @@ info:
     and answers questions using LLMs (Claude, GPT-4, Mistral).
   version: 1.0.0
 servers:
-  - url: https://chatpdf.crystalchain.io
+  - url: http://127.0.0.1:5001
     description: Production server
 paths:
   /process-pdf:

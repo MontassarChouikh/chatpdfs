@@ -11,7 +11,7 @@ echo "Sending request to $url"
 # Define the questions as a JSON string
 questions='[{"field_name": "CertificateAuditor","question": "CertificateAuditor"},
             {"field_name": "CertificateValidityStartDate","question": "CertificateValidityStartDate"},
-            {"field_name": "CertificateCountry","question": "CertificateCountry"},
+            {"field_name": "CertificateRawMaterials","question": "CertificateRawMaterials"},
             {"field_name": "shipments", "question": "shipments"},
             {"field_name": "products", "question": "products"}
             ]'
