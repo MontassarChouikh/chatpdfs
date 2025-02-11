@@ -3,6 +3,7 @@ import json
 import time
 import logging
 import boto3
+import re
 from botocore.exceptions import ClientError
 
 # Configure logging
@@ -15,11 +16,13 @@ class MistralBedrockAPI:
         self.region_name = os.getenv('AWS_REGION', 'eu-west-3')
         self.bedrock_client = boto3.client('bedrock-runtime', region_name=self.region_name)
 
+        # Cost per token (Mistral pricing)
+        self.cost_per_input_token = 0.00055 / 1000  # $0.00055 per 1K input tokens
+        self.cost_per_output_token = 0.00165 / 1000  # $0.00165 per 1K output tokens
+
     def query_mistral(self, extracted_text, questions, max_retries=3, retry_delay=2):
-        """
-        Query the Mistral model with extracted text and questions.
-        Clean and validate the JSON response to ensure proper parsing.
-        """
+        """Query Mistral model with extracted text and questions while logging token cost."""
+
         # Format questions
         question_instructions = ", ".join([f'"{q["field_name"]}": "{q["question"]}"' for q in questions])
 
@@ -44,12 +47,12 @@ class MistralBedrockAPI:
             "CertificateIssueDate": "YYYY-MM-DD",
             "CertificateValidityStartDate": "YYYY-MM-DD",
             "CertificateValidityEndDate": "YYYY-MM-DD",
-            "shipments": [
-                {{
-                }}
-            ]
+            "shipments": []
         }}
         """
+
+        # Estimate input token count (1 token ≈ 4 characters)
+        estimated_input_tokens = len(prompt) // 4
 
         # Payload
         body = {
@@ -77,12 +80,23 @@ class MistralBedrockAPI:
 
                 try:
                     # Extract and clean JSON response
-                    data = json.loads(response_body)
-                    outputs = data.get('outputs', [])
+                    response_data = json.loads(response_body)
+                    outputs = response_data.get('outputs', [])
+
                     if outputs:
                         raw_text = outputs[0].get('text', '')
 
-                        # Clean and validate the JSON response
+                        # Estimate output tokens
+                        estimated_output_tokens = len(raw_text) // 4
+
+                        # Calculate cost
+                        total_cost = (estimated_input_tokens * self.cost_per_input_token) + (
+                                    estimated_output_tokens * self.cost_per_output_token)
+
+                        # Log cost
+                        logger.info(f"Mistral estimated {estimated_input_tokens} input tokens, {estimated_output_tokens} output tokens. Estimated cost: ${total_cost:.6f}")
+
+                        # Clean and validate JSON response
                         cleaned_json = self._clean_and_validate_json(raw_text)
                         if cleaned_json:
                             return cleaned_json

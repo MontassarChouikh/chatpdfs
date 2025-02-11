@@ -45,17 +45,34 @@ ocr_instance = OCR()  # Initialize the OCR service
 @app.route('/process-pdf', methods=['POST'])
 def process_pdf():
     try:
-        # File validation
+        # **Check if the request contains a file**
         if 'file' not in request.files:
             return jsonify({"error": "No file part", "error_code": 201}), 400
 
         file = request.files['file']
+        
+        # **Check if a file was selected**
         if file.filename == '':
             return jsonify({"error": "No selected file", "error_code": 201}), 400
+        
+        # **Ensure the file is a PDF**
         if not file.filename.lower().endswith('.pdf'):
             return jsonify({"error": "File is not a PDF", "error_code": 101}), 400
 
-        # Read file as raw bytes
+        # **Limit the file size (e.g., 5MB = 5 * 1024 * 1024 bytes)**
+        max_file_size = 3 * 1024 * 1024  # 5MB (especially for scanned pdf wich might be 3 to 10 page for 5mb)
+        file.seek(0, os.SEEK_END)  # Move to the end of the file
+        file_size = file.tell()  # Get the current position (which is file size)
+        file.seek(0)  # Reset file pointer to the beginning
+
+        if file_size > max_file_size:
+            return jsonify({"error": f"File size exceeds {max_file_size / (1024 * 1024)}MB limit", "error_code": 102}), 400
+
+        # **Ensure only one file is uploaded**
+        if len(request.files) > 1:
+            return jsonify({"error": "Only one PDF file can be uploaded at a time", "error_code": 105}), 400
+
+        # **Read the file as raw bytes**
         file_bytes = file.read()
 
         # Get questions data from request
